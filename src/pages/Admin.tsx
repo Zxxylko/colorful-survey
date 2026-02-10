@@ -594,9 +594,20 @@ const QuestionsManager = ({ openConfirm }: { openConfirm: (t: string, m: string,
 };
 
 const ResultsViewer = ({ openConfirm }: { openConfirm: (t: string, m: string, c: () => void) => void }) => {
-  const { submissions, questions, deleteSubmission } = useSurvey();
+  const { submissions, questions, deleteSubmission, clearSubmissions } = useSurvey();
   const [searchTerm, setSearchTerm] = useState('');
   const { addToast } = useToast();
+
+  const handleClearAll = () => {
+    openConfirm(
+      'Hapus SEMUA Data?',
+      'PERINGATAN: Ini akan menghapus seluruh data responden secara permanen. Tindakan ini tidak dapat dibatalkan!',
+      () => {
+        clearSubmissions();
+        addToast('Seluruh data responden telah dihapus.', 'info');
+      }
+    );
+  };
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -664,9 +675,15 @@ const ResultsViewer = ({ openConfirm }: { openConfirm: (t: string, m: string, c:
             />
             <Search size={18} className="position-absolute text-muted" style={{ right: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
           </div>
-          <button className="btn btn-secondary" onClick={handleExportCSV}>
+          <button className="btn btn-secondary flex-shrink-0" onClick={handleExportCSV}>
             <Download size={18} /> Ekspor CSV
           </button>
+          
+          {submissions.length > 0 && (
+            <button className="btn btn-secondary flex-shrink-0" onClick={handleClearAll} style={{ color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.1)' }}>
+              <Trash2 size={18} /> Hapus Semua
+            </button>
+          )}
         </div>
       </div>
 

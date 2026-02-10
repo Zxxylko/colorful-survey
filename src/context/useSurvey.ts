@@ -24,6 +24,7 @@ export interface SurveyContextType {
   deleteQuestion: (id: string) => void;
   submitSurvey: (answers: Record<string, string | string[]>) => void;
   deleteSubmission: (id: string) => void;
+  clearSubmissions: () => void;
   isAdmin: boolean;
   isSurveyActive: boolean;
   setSurveyStatus: (status: boolean) => void;

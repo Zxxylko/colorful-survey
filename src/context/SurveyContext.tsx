@@ -30,7 +30,9 @@ export const SurveyProvider = ({ children }: { children: ReactNode }) => {
     ];
   });
 
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('is_admin') === 'true';
+  });
   const [isSurveyActive, setIsSurveyActive] = useState(() => {
     const saved = localStorage.getItem('survey_status');
     return saved ? JSON.parse(saved) : true;
@@ -63,6 +65,34 @@ export const SurveyProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem('admin_password', adminPassword);
   }, [adminPassword]);
+
+  useEffect(() => {
+    localStorage.setItem('is_admin', isAdmin.toString());
+  }, [isAdmin]);
+
+  // Real-time synchronization across tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'survey_submissions' && e.newValue) {
+        setSubmissions(JSON.parse(e.newValue));
+      }
+      if (e.key === 'survey_questions' && e.newValue) {
+        setQuestions(JSON.parse(e.newValue));
+      }
+      if (e.key === 'is_admin') {
+        setIsAdmin(e.newValue === 'true');
+      }
+      if (e.key === 'survey_title' && e.newValue) {
+        setSurveyTitleState(e.newValue);
+      }
+      if (e.key === 'survey_status' && e.newValue) {
+        setIsSurveyActive(JSON.parse(e.newValue));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const addQuestion = (q: Omit<Question, 'id'>) => {
     const newQ = { ...q, id: Date.now().toString() };
@@ -106,9 +136,13 @@ export const SurveyProvider = ({ children }: { children: ReactNode }) => {
     setSubmissions(submissions.filter(sub => sub.id !== id));
   };
 
+  const clearSubmissions = () => {
+    setSubmissions([]);
+  };
+
   return (
     <SurveyContext.Provider value={{
-      questions, submissions, addQuestion, updateQuestion, deleteQuestion, submitSurvey, deleteSubmission, isAdmin, isSurveyActive, setSurveyStatus, surveyTitle, setSurveyTitle, updateAdminPassword, login, logout
+      questions, submissions, addQuestion, updateQuestion, deleteQuestion, submitSurvey, deleteSubmission, clearSubmissions, isAdmin, isSurveyActive, setSurveyStatus, surveyTitle, setSurveyTitle, updateAdminPassword, login, logout
     }}>
       {children}
     </SurveyContext.Provider>
