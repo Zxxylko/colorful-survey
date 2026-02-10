@@ -437,3 +437,125 @@ input[type="checkbox"], input[type="radio"] {
   justify-content: center;
   position: relative;
 }
+
+/* --- Admin Responsive & Layout --- */
+.admin-layout {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.admin-sidebar {
+  width: 280px;
+  border-right: 1px solid var(--glass-border);
+  margin: 1.5rem;
+  border-radius: var(--radius-lg);
+  position: sticky;
+  top: 1.5rem;
+  height: calc(100vh - 3rem);
+  z-index: 1001;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-main {
+  padding: 2.5rem 4rem;
+}
+
+@media (max-width: 992px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    transform: translateX(-110%);
+  }
+
+  .admin-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    padding: 6rem 1.5rem 2rem 1.5rem;
+  }
+
+  .mobile-header {
+    height: 64px;
+    z-index: 1000;
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+/* --- Modal Styling --- */
+.modal-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+}
+.btn-danger:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.z-index-1000 { z-index: 1000; }
+.z-index-10 { z-index: 10; }
+
+/* Mobile Optimizations for Cards */
+@media (max-width: 576px) {
+  .fs-2xl { font-size: 1.75rem !important; }
+  .fs-xl { font-size: 1.5rem !important; }
+  .p-12 { padding: 2rem !important; }
+  .glass { padding: 1.5rem !important; }
+  
+  .d-grid { 
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}

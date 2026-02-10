@@ -6,7 +6,8 @@ import {
   Plus, Trash2, LayoutDashboard, Database, LogOut, 
   Settings, HelpCircle, Users, BarChart,
   TrendingUp, Calendar, ArrowRight, List, Star,
-  Download, Search, ToggleLeft, ToggleRight, Filter, Info
+  Download, Search, ToggleLeft, ToggleRight, Filter, Info,
+  AlertTriangle, Menu, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -21,6 +22,22 @@ const Admin = () => {
   const { logout, isSurveyActive, setSurveyStatus, surveyTitle } = useSurvey();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'warning';
+  }>({
+    show: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'danger'
+  });
 
   const handleLogout = () => {
     logout();
@@ -41,13 +58,45 @@ const Admin = () => {
     addToast(newStatus ? 'Survey diaktifkan kembali.' : 'Survey dinonaktifkan.', newStatus ? 'success' : 'info');
   };
 
+  const openConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'warning' = 'danger') => {
+    setConfirmModal({ show: true, title, message, onConfirm, type });
+  };
+
   const isActive = (path: string) => location.pathname === path;
 
+
+
   return (
-    <div className="d-flex min-vh-100">
+    <div className="admin-layout d-flex min-vh-100">
+      {/* Mobile Header */}
+      <div className="mobile-header d-lg-none glass w-100 p-4 d-flex justify-content-between align-items-center position-fixed top-0 start-0 z-index-1000">
+        <div className="d-flex align-items-center gap-3">
+          <div className="p-2 rounded-md" style={{ background: 'var(--primary)' }}>
+            <LayoutDashboard size={18} color="white" />
+          </div>
+          <span className="fw-bold fs-sm uppercase">{surveyTitle}</span>
+        </div>
+        <button className="btn-icon glass" onClick={() => setIsSidebarOpen(true)}>
+          <Menu size={20} />
+        </button>
+      </div>
+
+      {/* Sidebar Overlay (Mobile) */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="sidebar-overlay d-lg-none"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Elegant Sidebar */}
-      <aside className="glass d-flex flex-column" style={{ width: '280px', borderRight: '1px solid var(--glass-border)', margin: '1.5rem', borderRadius: 'var(--radius-lg)', position: 'sticky', top: '1.5rem', height: 'calc(100vh - 3rem)' }}>
-        <div className="p-8 mb-4">
+      <aside className={`admin-sidebar glass d-flex flex-column ${isSidebarOpen ? 'show' : ''}`}>
+        <div className="p-8 mb-4 d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-3">
             <div className="p-2 rounded-md" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)' }}>
               <LayoutDashboard size={20} color="white" />
@@ -56,22 +105,25 @@ const Admin = () => {
               {surveyTitle.toUpperCase()}
             </h2>
           </div>
+          <button className="btn-icon d-lg-none" onClick={() => setIsSidebarOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
         
         <nav className="d-flex flex-column gap-1 flex-grow-1 px-4">
-          <Link to="/admin" className={`btn ${isActive('/admin') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+          <Link to="/admin" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <TrendingUp size={18} /> Ringkasan
           </Link>
-          <Link to="/admin/questions" className={`btn ${isActive('/admin/questions') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+          <Link to="/admin/questions" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/questions') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <List size={18} /> Pertanyaan
           </Link>
-          <Link to="/admin/stats" className={`btn ${isActive('/admin/stats') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+          <Link to="/admin/stats" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/stats') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <BarChart size={18} /> Statistik
           </Link>
-          <Link to="/admin/results" className={`btn ${isActive('/admin/results') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+          <Link to="/admin/results" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/results') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <Database size={18} /> Hasil Survey
           </Link>
-          <Link to="/admin/settings" className={`btn ${isActive('/admin/settings') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+          <Link to="/admin/settings" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/settings') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <Settings size={18} /> Pengaturan
           </Link>
           
@@ -106,15 +158,61 @@ const Admin = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-grow-1 p-8 overflow-auto" style={{ padding: '2.5rem 4rem' }}>
+      <main className="admin-main flex-grow-1 overflow-auto">
         <Routes>
           <Route path="/" element={<DashboardOverview />} />
-          <Route path="/questions" element={<QuestionsManager />} />
+          <Route path="/questions" element={<QuestionsManager openConfirm={openConfirm} />} />
           <Route path="/stats" element={<StatisticsView />} />
-          <Route path="/results" element={<ResultsViewer />} />
+          <Route path="/results" element={<ResultsViewer openConfirm={openConfirm} />} />
           <Route path="/settings" element={<SettingsView />} />
         </Routes>
       </main>
+
+      {/* Custom Confirm Modal */}
+      <AnimatePresence>
+        {confirmModal.show && (
+          <div className="modal-root d-flex align-items-center justify-content-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="modal-backdrop"
+              onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="glass p-8 rounded-lg text-center position-relative z-index-10"
+              style={{ maxWidth: '400px', width: '100%', border: '1px solid var(--glass-border)' }}
+            >
+              <div className="mb-6 p-4 rounded-full mx-auto" style={{ width: '64px', height: '64px', background: confirmModal.type === 'danger' ? 'rgba(255, 23, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AlertTriangle size={32} color={confirmModal.type === 'danger' ? 'var(--danger)' : 'var(--warning)'} style={{ margin: 'auto' }} />
+              </div>
+              <h3 className="fw-bold fs-lg mb-2">{confirmModal.title}</h3>
+              <p className="text-secondary fs-sm mb-8">{confirmModal.message}</p>
+              <div className="d-grid gap-3" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+                >
+                  Batal
+                </button>
+                <button 
+                  className={`btn ${confirmModal.type === 'danger' ? 'btn-danger' : 'btn-primary'}`}
+                  style={{ background: confirmModal.type === 'danger' ? 'var(--danger)' : 'var(--primary)' }}
+                  onClick={() => {
+                    confirmModal.onConfirm();
+                    setConfirmModal(prev => ({ ...prev, show: false }));
+                  }}
+                >
+                  Ya, Hapus
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -294,7 +392,7 @@ const StatisticsView = () => {
   );
 };
 
-const QuestionsManager = () => {
+const QuestionsManager = ({ openConfirm }: { openConfirm: (t: string, m: string, c: () => void) => void }) => {
   const { questions, addQuestion, updateQuestion, deleteQuestion } = useSurvey();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -336,10 +434,14 @@ const QuestionsManager = () => {
   };
   
   const handleDelete = (id: string) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')) {
-      deleteQuestion(id);
-      addToast('Pertanyaan dihapus.', 'info');
-    }
+    openConfirm(
+      'Hapus Pertanyaan?',
+      'Apakah Anda yakin ingin menghapus pertanyaan ini? Data jawaban yang terkait mungkin akan terpengaruh.',
+      () => {
+        deleteQuestion(id);
+        addToast('Pertanyaan berhasil dihapus.', 'info');
+      }
+    );
   };
 
   return (
@@ -491,17 +593,21 @@ const QuestionsManager = () => {
   );
 };
 
-const ResultsViewer = () => {
+const ResultsViewer = ({ openConfirm }: { openConfirm: (t: string, m: string, c: () => void) => void }) => {
   const { submissions, questions, deleteSubmission } = useSurvey();
   const [searchTerm, setSearchTerm] = useState('');
   const { addToast } = useToast();
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Apakah Anda yakin ingin menghapus data responden ini?')) {
-      deleteSubmission(id);
-      addToast('Data responden berhasil dihapus.', 'info');
-    }
+    openConfirm(
+      'Hapus Data?',
+      'Apakah Anda yakin ingin menghapus data responden ini? Tindakan ini tidak dapat dibatalkan.',
+      () => {
+        deleteSubmission(id);
+        addToast('Data responden berhasil dihapus.', 'info');
+      }
+    );
   };
 
   const filteredSubmissions = useMemo(() => {
