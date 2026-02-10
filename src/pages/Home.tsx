@@ -18,7 +18,7 @@ const Home = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="glass p-8 p-12 text-center" 
+        className="glass p-8 text-center" 
         style={{ maxWidth: '600px', width: '100%', borderRadius: 'var(--radius-lg)' }}
       >
         <div className="d-flex justify-content-center mb-12">

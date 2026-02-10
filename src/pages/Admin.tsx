@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useSurvey } from '../context/useSurvey';
 import type { Question } from '../context/useSurvey';
 import { useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom';
@@ -8,9 +8,8 @@ import {
   TrendingUp, Calendar, ArrowRight, List, Star,
   Download, Search, ToggleLeft, ToggleRight, Filter, Info,
   AlertTriangle, Menu, X, Printer, Image as ImageIcon,
-  FileText
+  FileText, Trophy, Activity, MessageSquare
 } from 'lucide-react';
-import { useRef } from 'react';
 import { toPng } from 'html-to-image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -752,6 +751,38 @@ const PosterViewer = () => {
   const posterRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToast();
 
+  const summaryStats = useMemo(() => {
+    if (submissions.length === 0) return null;
+    
+    // Most common answer for first rating or multiple choice question
+    const topQuestion = questions.find(q => q.type === 'rating' || q.type === 'multiple');
+    let topValue = 'N/A';
+    if (topQuestion) {
+      const counts: Record<string, number> = {};
+      submissions.forEach(s => {
+        const ans = s.answers[topQuestion.id] as string;
+        if (ans) counts[ans] = (counts[ans] || 0) + 1;
+      });
+      const topEntry = Object.entries(counts).sort((a,b) => b[1] - a[1])[0];
+      if (topEntry) {
+         if (topQuestion.type === 'rating') {
+            topValue = (topQuestion.ratingLabels?.[topEntry[0]]) || `Skor ${topEntry[0]}`;
+         } else {
+            topValue = topEntry[0];
+         }
+      }
+    }
+
+    return {
+      responders: submissions.length,
+      topValue,
+      questionsCount: questions.length
+    };
+  }, [submissions, questions]);
+
+  const [posterId] = useState(() => Math.floor(Math.random() * 9000) + 1000);
+  const [createdDate] = useState(() => new Date().toLocaleDateString('id-ID', { month: 'long', day: 'numeric', year: 'numeric' }));
+
   const handleDownload = async () => {
     if (!posterRef.current) return;
     try {
@@ -799,12 +830,46 @@ const PosterViewer = () => {
         ) : (
           <div ref={posterRef} className="poster-canvas glass p-12 d-flex flex-column gap-12" id="poster-area">
              {/* Header */}
-             <div className="text-center">
-                <div className="badge mb-4">Laporan Survey Infografis</div>
+             <div className="text-center position-relative">
+                <div className="badge mb-4">Laporan Hasil Survey</div>
                 <h1 className="poster-title fw-bold mb-4">{surveyTitle.toUpperCase()}</h1>
                 <div className="d-flex justify-content-center gap-6 text-muted fs-sm uppercase letter-spacing-1">
-                   <span>Responden: {submissions.length}</span>
-                   <span>Dibuat: {new Date().toLocaleDateString('id-ID')}</span>
+                   <span>ID: #{posterId}</span>
+                   <span>Dibuat: {createdDate}</span>
+                </div>
+                <div className="position-absolute opacity-10" style={{ top: -20, right: 0 }}>
+                   <Activity size={100} strokeWidth={1} />
+                </div>
+             </div>
+
+             {/* Summary Cards */}
+             <div className="d-grid gap-6" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                <div className="poster-summary-card">
+                   <div className="p-3 rounded-md" style={{ background: 'rgba(139, 92, 246, 0.2)', border: '1px solid var(--primary)' }}>
+                      <Users size={24} className="text-primary" />
+                   </div>
+                   <div>
+                      <div className="fs-xs text-muted uppercase">Total Responden</div>
+                      <div className="fs-xl fw-bold">{summaryStats?.responders}</div>
+                   </div>
+                </div>
+                <div className="poster-summary-card">
+                   <div className="p-3 rounded-md" style={{ background: 'rgba(236, 72, 153, 0.2)', border: '1px solid var(--accent)' }}>
+                      <Trophy size={24} className="text-accent" />
+                   </div>
+                   <div>
+                      <div className="fs-xs text-muted uppercase">Favorit Umum</div>
+                      <div className="fs-lg fw-bold text-truncate" style={{ maxWidth: '120px' }}>{summaryStats?.topValue}</div>
+                   </div>
+                </div>
+                <div className="poster-summary-card">
+                   <div className="p-3 rounded-md" style={{ background: 'rgba(34, 211, 238, 0.2)', border: '1px solid #22d3ee' }}>
+                      <MessageSquare size={24} style={{ color: '#22d3ee' }} />
+                   </div>
+                   <div>
+                      <div className="fs-xs text-muted uppercase">Jumlah Data</div>
+                      <div className="fs-xl fw-bold">{submissions.length} Jawaban</div>
+                   </div>
                 </div>
              </div>
 
@@ -914,11 +979,46 @@ const PosterViewer = () => {
 
 // --- Settings Component ---
 const SettingsView = () => {
-  const { surveyTitle, setSurveyTitle, updateAdminPassword } = useSurvey();
+  const { surveyTitle, setSurveyTitle, updateAdminPassword, questions, submissions, importData } = useSurvey();
   const [title, setTitle] = useState(surveyTitle);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { addToast } = useToast();
+
+  const handleExport = () => {
+    const data = {
+      questions,
+      submissions,
+      surveyTitle,
+      isSurveyActive: true, // Default to active on import
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `survey-backup-${new Date().getTime()}.json`;
+    link.click();
+    addToast('Konfigurasi berhasil diekspor!', 'success');
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        importData(data);
+        addToast('Konfigurasi berhasil diimpor!', 'success');
+        // Clear input
+        e.target.value = '';
+      } catch {
+        addToast('File tidak valid atau rusak.', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleSaveTitle = () => {
     if (!title.trim()) {
@@ -1005,6 +1105,32 @@ const SettingsView = () => {
           <div className="mt-6 d-flex justify-content-end">
             <button className="btn btn-primary" onClick={handleUpdatePassword}>Update Password</button>
           </div>
+        </div>
+
+        <div className="glass p-8 rounded-lg">
+          <div className="d-flex align-items-center gap-3 mb-8">
+            <Database size={20} className="text-success" />
+            <h3 className="fw-bold fs-lg">Backup & Restore</h3>
+          </div>
+          
+          <div className="d-grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
+            <div>
+              <p className="fs-sm text-muted mb-4 opacity-70">Simpan semua konfigurasi dan hasil survey kamu sebagai file JSON.</p>
+              <button className="btn btn-secondary w-100" onClick={handleExport}>
+                <Download size={18} /> Ekspor Konfigurasi
+              </button>
+            </div>
+            <div>
+              <p className="fs-sm text-muted mb-4 opacity-70">Upload file konfigurasi JSON untuk memindah data ke perangkat lain.</p>
+              <label className="btn btn-secondary w-100 cursor-pointer text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Plus size={18} className="me-2" /> Impor Konfigurasi
+                <input type="file" className="d-none" accept=".json" onChange={handleImport} />
+              </label>
+            </div>
+          </div>
+          <p className="fs-xs text-warning mt-6 italic">
+            *Impor data akan menggantikan semua pertanyaan dan jawaban yang ada pada perangkat ini.
+          </p>
         </div>
       </div>
     </motion.div>

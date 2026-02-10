@@ -150,7 +150,7 @@ const Survey = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="glass p-8 p-12"
+            className="glass p-8"
             style={{ borderRadius: 'var(--radius-lg)' }}
           >
             <div className="fs-sm fw-semibold text-muted mb-4 uppercase" style={{ letterSpacing: '2px' }}>
@@ -256,7 +256,7 @@ const Survey = () => {
 
               {currentQuestion.type === 'rating' && (
                 <div>
-                  <div className="d-flex justify-content-between gap-2">
+                  <div className="d-flex justify-content-between gap-2 survey-rating-container">
                     {Array.from({ length: currentQuestion.ratingMax || 5 }, (_, i) => i + 1).map((val) => {
                       const ratingValue = Number(answers[currentQuestion.id]);
                       const isSelected = ratingValue === val;
@@ -264,7 +264,7 @@ const Survey = () => {
                       return (
                         <button 
                           key={val}
-                          className={`btn rounded-lg flex-column gap-2 ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
+                          className={`btn rounded-lg flex-column gap-2 survey-rating-btn ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
                           style={{ height: '80px', flex: 1, position: 'relative' }}
                           onClick={() => handleAnswer(val.toString())}
                         >

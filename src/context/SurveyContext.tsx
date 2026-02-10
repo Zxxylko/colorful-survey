@@ -131,6 +131,21 @@ export const SurveyProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => setIsAdmin(false);
+  
+  const importData = (data: unknown) => {
+    const d = data as {
+      questions?: Question[];
+      submissions?: Submission[];
+      surveyTitle?: string;
+      isSurveyActive?: boolean;
+      adminPassword?: string;
+    };
+    if (d.questions) setQuestions(d.questions);
+    if (d.submissions) setSubmissions(d.submissions);
+    if (d.surveyTitle) setSurveyTitleState(d.surveyTitle);
+    if (typeof d.isSurveyActive === 'boolean') setIsSurveyActive(d.isSurveyActive);
+    if (d.adminPassword) setAdminPassword(d.adminPassword);
+  };
 
   const deleteSubmission = (id: string) => {
     setSubmissions(submissions.filter(sub => sub.id !== id));
@@ -142,7 +157,7 @@ export const SurveyProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <SurveyContext.Provider value={{
-      questions, submissions, addQuestion, updateQuestion, deleteQuestion, submitSurvey, deleteSubmission, clearSubmissions, isAdmin, isSurveyActive, setSurveyStatus, surveyTitle, setSurveyTitle, updateAdminPassword, login, logout
+      questions, submissions, addQuestion, updateQuestion, deleteQuestion, submitSurvey, deleteSubmission, clearSubmissions, isAdmin, isSurveyActive, setSurveyStatus, surveyTitle, setSurveyTitle, updateAdminPassword, login, logout, importData
     }}>
       {children}
     </SurveyContext.Provider>

@@ -33,6 +33,7 @@ export interface SurveyContextType {
   updateAdminPassword: (newPassword: string) => void;
   login: (password: string) => boolean;
   logout: () => void;
+  importData: (data: unknown) => void;
 }
 
 export const SurveyContext = createContext<SurveyContextType | undefined>(undefined);

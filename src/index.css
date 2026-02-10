@@ -619,3 +619,55 @@ input[type="checkbox"], input[type="radio"] {
     margin: 0 !important;
   }
 }
+
+@media (max-width: 576px) {
+  .page-container {
+    padding: 1.5rem 1rem !important;
+  }
+  
+  .fs-2xl {
+    font-size: 1.75rem !important;
+  }
+  
+  .fs-xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .glass {
+    padding: 1.5rem !important;
+  }
+  
+  .btn {
+    padding: 0.8rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .mb-12 {
+    margin-bottom: 2rem !important;
+  }
+
+  /* Survey Specific Responsive */
+  .survey-rating-container {
+    gap: 0.25rem !important;
+  }
+  
+  .survey-rating-btn {
+    height: 60px !important;
+  }
+}
+
+/* --- Poster Generator Enhanced --- */
+.poster-canvas {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0) !important;
+  background-size: 24px 24px !important;
+}
+
+.poster-summary-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
