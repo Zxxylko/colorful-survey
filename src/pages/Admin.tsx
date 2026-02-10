@@ -96,16 +96,16 @@ const Admin = () => {
 
       {/* Elegant Sidebar */}
       <aside className={`admin-sidebar glass d-flex flex-column ${isSidebarOpen ? 'show' : ''}`}>
-        <div className="p-8 mb-4 d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center gap-3">
-            <div className="p-2 rounded-md" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)' }}>
-              <LayoutDashboard size={20} color="white" />
+        <div className="p-6 mb-2 d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center gap-3 overflow-hidden">
+            <div className="p-2 rounded-md flex-shrink-0" style={{ background: 'var(--primary)', boxShadow: '0 0 20px var(--primary-glow)' }}>
+              <LayoutDashboard size={18} color="white" />
             </div>
-            <h2 className="fw-bold text-truncate" style={{ fontSize: '1.25rem', letterSpacing: '1px' }} title={surveyTitle}>
+            <h2 className="fw-bold text-truncate mb-0" style={{ fontSize: '1rem', letterSpacing: '0.5px' }} title={surveyTitle}>
               {surveyTitle.toUpperCase()}
             </h2>
           </div>
-          <button className="btn-icon d-lg-none" onClick={() => setIsSidebarOpen(false)}>
+          <button className="btn-icon d-lg-none flex-shrink-0" onClick={() => setIsSidebarOpen(false)}>
             <X size={20} />
           </button>
         </div>

@@ -441,12 +441,14 @@ input[type="checkbox"], input[type="radio"] {
 /* --- Admin Responsive & Layout --- */
 .admin-layout {
   background: rgba(15, 23, 42, 0.2);
+  width: 100%;
 }
 
 .admin-sidebar {
   width: 280px;
-  border-right: 1px solid var(--glass-border);
-  margin: 1.5rem;
+  flex-shrink: 0;
+  border: 1px solid var(--glass-border);
+  margin: 1.5rem 0 1.5rem 1.5rem;
   border-radius: var(--radius-lg);
   position: sticky;
   top: 1.5rem;
@@ -457,6 +459,7 @@ input[type="checkbox"], input[type="radio"] {
 
 .admin-main {
   padding: 2.5rem 4rem;
+  flex-grow: 1;
 }
 
 @media (max-width: 992px) {
