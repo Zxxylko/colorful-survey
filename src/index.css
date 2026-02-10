@@ -562,3 +562,60 @@ input[type="checkbox"], input[type="radio"] {
     gap: 1rem !important;
   }
 }
+
+/* --- Poster Generator --- */
+.poster-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.poster-canvas {
+  width: 800px; /* Standard Infographic Width */
+  min-height: 1100px;
+  background: var(--bg-dark) !important;
+  color: white !important;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  margin-bottom: 2rem;
+}
+
+.poster-title {
+  font-size: 3rem;
+  letter-spacing: 4px;
+  color: white;
+  text-shadow: 0 0 20px var(--primary-glow);
+}
+
+.poster-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.poster-footer {
+  background: linear-gradient(to right, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+  border-top: 1px solid var(--glass-border);
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1.5px;
+}
+
+@media print {
+  .admin-sidebar, .mobile-header, .btn, .d-flex.justify-content-between.align-items-center.mb-8 {
+    display: none !important;
+  }
+  .admin-main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .poster-container {
+    padding: 0 !important;
+  }
+  .poster-canvas {
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+  }
+}

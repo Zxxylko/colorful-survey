@@ -7,12 +7,15 @@ import {
   Settings, HelpCircle, Users, BarChart,
   TrendingUp, Calendar, ArrowRight, List, Star,
   Download, Search, ToggleLeft, ToggleRight, Filter, Info,
-  AlertTriangle, Menu, X
+  AlertTriangle, Menu, X, Printer, Image as ImageIcon,
+  FileText
 } from 'lucide-react';
+import { useRef } from 'react';
+import { toPng } from 'html-to-image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, Cell
+  ResponsiveContainer, Cell, AreaChart, Area
 } from 'recharts';
 import { useToast } from '../context/useToast';
 
@@ -123,6 +126,9 @@ const Admin = () => {
           <Link to="/admin/results" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/results') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <Database size={18} /> Hasil Survey
           </Link>
+          <Link to="/admin/poster" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/poster') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
+            <FileText size={18} /> Poster Laporan
+          </Link>
           <Link to="/admin/settings" onClick={() => setIsSidebarOpen(false)} className={`btn ${isActive('/admin/settings') ? 'btn-primary' : 'btn-secondary'} justify-content-start`} style={{ padding: '0.75rem 1rem' }}>
             <Settings size={18} /> Pengaturan
           </Link>
@@ -164,6 +170,7 @@ const Admin = () => {
           <Route path="/questions" element={<QuestionsManager openConfirm={openConfirm} />} />
           <Route path="/stats" element={<StatisticsView />} />
           <Route path="/results" element={<ResultsViewer openConfirm={openConfirm} />} />
+          <Route path="/poster" element={<PosterViewer />} />
           <Route path="/settings" element={<SettingsView />} />
         </Routes>
       </main>
@@ -739,6 +746,173 @@ const ResultsViewer = ({ openConfirm }: { openConfirm: (t: string, m: string, c:
   );
 };
 
+// --- Poster Generator Component ---
+const PosterViewer = () => {
+  const { submissions, questions, surveyTitle } = useSurvey();
+  const posterRef = useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
+
+  const handleDownload = async () => {
+    if (!posterRef.current) return;
+    try {
+      addToast('Menyiapkan poster...', 'info');
+      const dataUrl = await toPng(posterRef.current, { cacheBust: true, quality: 1 });
+      const link = document.createElement('a');
+      link.download = `poster-survey-${new Date().getTime()}.png`;
+      link.href = dataUrl;
+      link.click();
+      addToast('Poster berhasil diunduh!', 'success');
+    } catch (err) {
+      console.error('oops, something went wrong!', err);
+      addToast('Gagal mengunduh poster.', 'error');
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+      <div className="d-flex justify-content-between align-items-center mb-8">
+        <div>
+          <h1 className="fw-bold fs-2xl mb-2">Poster Kreatif</h1>
+          <p className="text-secondary">Visualisasi infografis otomatis untuk tugas sekolah kamu.</p>
+        </div>
+        <div className="d-flex gap-3">
+          <button className="btn btn-secondary" onClick={handlePrint}>
+            <Printer size={18} /> Cetak/PDF
+          </button>
+          <button className="btn btn-primary" onClick={handleDownload} disabled={submissions.length === 0}>
+            <ImageIcon size={18} /> Download Image
+          </button>
+        </div>
+      </div>
+
+      <div className="poster-container d-flex justify-content-center pb-12">
+        {submissions.length === 0 ? (
+          <div className="glass p-20 text-center rounded-lg w-100">
+             <Info size={48} className="text-muted mb-4 mx-auto opacity-20" />
+             <h3 className="text-secondary">Belum ada data untuk ditampilkan</h3>
+             <p className="text-muted mt-2">Kumpulkan jawaban survey dulu agar poster bisa terisi otomatis.</p>
+          </div>
+        ) : (
+          <div ref={posterRef} className="poster-canvas glass p-12 d-flex flex-column gap-12" id="poster-area">
+             {/* Header */}
+             <div className="text-center">
+                <div className="badge mb-4">Laporan Survey Infografis</div>
+                <h1 className="poster-title fw-bold mb-4">{surveyTitle.toUpperCase()}</h1>
+                <div className="d-flex justify-content-center gap-6 text-muted fs-sm uppercase letter-spacing-1">
+                   <span>Responden: {submissions.length}</span>
+                   <span>Dibuat: {new Date().toLocaleDateString('id-ID')}</span>
+                </div>
+             </div>
+
+             {/* Curve Highlights (Top Questions) */}
+             <div className="d-grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                {questions.filter(q => q.type === 'rating').slice(0, 2).map((q) => {
+                  const stats = Array.from({ length: q.ratingMax || 5 }, (_, i) => {
+                    const val = i + 1;
+                    return {
+                      name: (q.ratingLabels && q.ratingLabels[String(val)]) || String(val),
+                      count: submissions.filter(s => s.answers[q.id] === String(val)).length
+                    };
+                  });
+
+                  return (
+                    <div key={q.id} className="poster-section p-6 rounded-lg">
+                       <h3 className="fs-md fw-bold text-accent mb-6"> {q.text}</h3>
+                       <div style={{ height: '180px', width: '100%' }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={stats}>
+                              <defs>
+                                <linearGradient id={`colorCount-${q.id}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
+                                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <Tooltip 
+                                contentStyle={{ background: 'rgba(30, 27, 75, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                                itemStyle={{ color: 'white' }}
+                              />
+                              <Area 
+                                type="monotone" 
+                                dataKey="count" 
+                                stroke="var(--primary)" 
+                                strokeWidth={3}
+                                fillOpacity={1} 
+                                fill={`url(#colorCount-${q.id})`} 
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                       </div>
+                    </div>
+                  );
+                })}
+             </div>
+
+             {/* Bar Charts for Multi Choice */}
+             <div className="d-grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+                {questions.filter(q => q.type === 'multiple' || q.type === 'checkbox').slice(0, 2).map((q) => {
+                  const options = q.options || [];
+                  const stats = options.map(opt => ({
+                    name: opt,
+                    count: submissions.filter(s => {
+                      const ans = s.answers[q.id];
+                      return Array.isArray(ans) ? ans.includes(opt) : ans === opt;
+                    }).length
+                  }));
+
+                  return (
+                    <div key={q.id} className="poster-section p-6 rounded-lg">
+                       <h3 className="fs-md fw-bold text-accent mb-6">{q.text}</h3>
+                       <div style={{ height: '160px', width: '100%' }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <ReBarChart data={stats} layout="vertical">
+                              <XAxis type="number" hide />
+                              <YAxis dataKey="name" type="category" width={80} hide />
+                              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: 'rgba(30, 27, 75, 0.9)', border: 'none' }} />
+                              <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={12}>
+                                {stats.map((_, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Bar>
+                            </ReBarChart>
+                          </ResponsiveContainer>
+                       </div>
+                       <div className="mt-4 d-flex flex-column gap-2">
+                          {stats.map((s, idx) => (
+                            <div key={idx} className="d-flex justify-content-between fs-xs align-items-center">
+                               <span className="text-secondary opacity-70">{s.name}</span>
+                               <span className="fw-bold fs-sm" style={{ color: COLORS[idx % COLORS.length] }}>{s.count} Suara</span>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                  );
+                })}
+             </div>
+
+             {/* Footer Infographic Footer */}
+             <div className="poster-footer p-6 mt-auto rounded-lg text-center">
+                 <div className="d-flex justify-content-center align-items-center gap-4">
+                    <div className="p-2 rounded-md" style={{ background: 'var(--primary)' }}>
+                      <Star size={18} color="white" fill="white" />
+                    </div>
+                    <div>
+                      <div className="fw-bold fs-lg">TERIMA KASIH</div>
+                      <div className="fs-xs text-muted opacity-50 letter-spacing-1">Survey ini dibuat di platform Colorful Survey Platform</div>
+                    </div>
+                 </div>
+             </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// --- Settings Component ---
 const SettingsView = () => {
   const { surveyTitle, setSurveyTitle, updateAdminPassword } = useSurvey();
   const [title, setTitle] = useState(surveyTitle);
