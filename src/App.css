@@ -1,0 +1,92 @@
+/* Updated App.css with layout helpers */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.min-vh-100 { min-height: 100vh; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.flex-column { flex-direction: column; }
+.align-items-center { align-items: center; }
+.justify-content-center { justify-content: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-start { justify-content: flex-start; }
+.flex-grow-1 { flex-grow: 1; }
+.flex-wrap { flex-wrap: wrap; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+.gap-6 { gap: 2rem; }
+.gap-8 { gap: 3rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.p-12 { padding: 3rem; }
+
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mb-12 { margin-bottom: 3rem; }
+
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-auto { margin-top: auto; }
+
+.w-100 { width: 100%; }
+.max-w-md { max-width: 480px; }
+.max-w-lg { max-width: 640px; }
+.max-w-xl { max-width: 1200px; }
+
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-circle { border-radius: 50%; }
+.rounded-full { border-radius: var(--radius-full); }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); }
+
+.fw-semibold { font-weight: 500; }
+.fw-bold { font-weight: 700; }
+.fs-sm { font-size: 0.875rem; }
+.fs-lg { font-size: 1.125rem; }
+.fs-xl { font-size: 1.5rem; }
+.fs-2xl { font-size: 2.5rem; }
+
+.cursor-pointer { cursor: pointer; }
+.overflow-hidden { overflow: hidden; }
+.position-relative { position: relative; }
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.15); /* Primary glow */
+  color: #c4b5fd; /* Light violet */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
